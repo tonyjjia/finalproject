@@ -1,4 +1,5 @@
 #usnews data scrapping
+#Author Weixuan Tony Jia
 import requests
 import bs4
 from urllib.request import urlopen
@@ -28,8 +29,8 @@ for i in range(len(result_indices)) :
     for word in result_indices[i].split():
         result_indices_readiness.append(word)
         i+=1
-result_indices_readiness2=[x for x in result_indices_readiness if "Enrollment"  in x ]
-result_indices_readiness2=[x for x in result_indices_readiness2 if "Readiness"  in x ]
+result_indices_readiness2=[x for x in result_indices_readiness if "Enrollment" in x]
+result_indices_readiness2=[x for x in result_indices_readiness2 if "Readiness" in x]
 result_indices_readiness2=[r.replace('Readiness', '') for r in result_indices_readiness2]
 result_indices_final=[r.replace('Enrollment', '') for r in result_indices_readiness2]
 result_name_indices=pd.DataFrame(list(zip(result_name, result_indices_final)),columns =['School Name', 'College Readiness Index'])         
