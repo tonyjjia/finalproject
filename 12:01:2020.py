@@ -9,7 +9,6 @@ Created on Fri Nov 20 21:36:51 2020
 import pandas as pd
 import pandas_dedupe
 
-
 import numpy as np
 import os
 
@@ -23,6 +22,7 @@ from bokeh.plotting import figure, output_file, show
 from bokeh.layouts import gridplot
 
 import geopandas
+from geopandas import GeoDataFrame
 
 ############################################################################################################
 
@@ -195,23 +195,35 @@ df_chicago_neighborhood = geopandas.read_file(chicago_neighborhood)
 df_chicago_neighborhood["zip"] = df_chicago_neighborhood["zip"] .astype(int)
 df_chicago_neighborhood = df_chicago_neighborhood.rename(columns={'zip': 'Zip'})
 
+neighborhood_school = pd.merge(race_geo_college_readiness,
+                 df_chicago_neighborhood,
+                 on='Zip', how='inner')
 
-fig, ax = plt.subplots(figsize=(5,5))
-df_chicago_neighborhood.to_crs(epsg=3435).plot(ax=ax, 
-                                               color='purple', 
-                                               alpha=0.5, 
-                                               edgecolor='white')
+neighborhood_school = neighborhood_school.rename(columns={'College Readiness Index': 
+                                                          'college_readiness_index'})
+
+
+neighborhood_school = GeoDataFrame(neighborhood_school)
+
+
+# Plot the choropleth map on college readiness index 
+
+fig, ax = plt.subplots(figsize=(12,12))
+
+from mpl_toolkits.axes_grid1 import make_axes_locatable
+divider = make_axes_locatable(ax)
+cax = divider.append_axes('right', size='5%', pad=0.1)
+    
+ax = neighborhood_school[neighborhood_school.Zip != 60637].plot(ax=ax, column='college_readiness_index', legend=True, cax=cax)
+
 ax.axis('off')
-ax.set_title('Chicago Neighborhood');
+ax.set_title('How Well Chicago Public High Schools Prepare their Students for College by Neighborhood');
 
 
 
-#a = race_geo_college_readiness[['Zip',
-             #"College Readiness Index"]]
 
-#neighborhood_school = pd.merge(a,
-                 #chicago_neighborhood,
-                 #on='zip', how='inner')
+
+
 
 
 
