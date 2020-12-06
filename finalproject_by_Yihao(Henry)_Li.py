@@ -156,7 +156,7 @@ def race_vs_college(a,b,c,d,e):
        xlabel = "Percentage of Hispanic Students",
        ylabel = "College Readiness Index")
     ax3.set(title = "Share of Asian Students vs. College Readiness",
-       xlabel = "Percentage of Hispanic Students",
+       xlabel = "Percentage of Asian Students",
        ylabel = "College Readiness Index")
     ax4.set(title = "Share of White Students vs. College Readiness",
        xlabel = "Percentage of White Students",
@@ -178,34 +178,43 @@ fig.savefig("/Users/YIHAOLI/Desktop/Github/finalproject/race_vs_college.png")
 # students and how well a school prepares its student to be ready for college. 
 # Further investigation is demanded. 
 
+
 # Spatial Data
 
 # Data Source: https://data.cityofchicago.org/Facilities-Geographic-Boundaries/Boundaries-ZIP-Codes/gdcf-axmw
 
 def geo_plot(path1):
+#path1 = r'/Users/YIHAOLI/Desktop/Github/finalproject/Boundaries - ZIP Codes'
     chicago_neighborhood = os.path.join(path1, 
                                     'geo_export_a467ef04-a7d9-4917-aaff-ef95b0c3061d.shp')
 
     df_chicago_neighborhood = geopandas.read_file(chicago_neighborhood)
 
     df_chicago_neighborhood["zip"] = df_chicago_neighborhood["zip"] .astype(int)
-    df_chicago_neighborhood = df_chicago_neighborhood.rename(columns={'zip': 'Zip'})
+    df_chicago_neighborhood = df_chicago_neighborhood.rename(columns={'zip': 
+                                                                      'Zip'})
 
     df_neighborhood_school = pd.merge(race_geo_college_readiness,
+                                      df_chicago_neighborhood,
+                                      on='Zip', how='inner')
+    #df_neighborhood_school = df_neighborhood_school.rename(columns={'College Readiness Index': 
+     #                                                               'college_readiness_index'})
+    
+    avg_college_readiness = df_neighborhood_school.groupby('Zip', 
+                                                       as_index=False)['College Readiness Index'].mean()
+    
+    avg_college_readiness = avg_college_readiness.rename(columns={'College Readiness Index': 
+                                                                  'avg_college_readiness_index'})
+
+    avg_college_zip = pd.merge(avg_college_readiness,
                                    df_chicago_neighborhood,
                                    on='Zip', how='inner')
 
-    df_neighborhood_school = df_neighborhood_school.rename(columns={'College Readiness Index': 
-                                                              'college_readiness_index'})
-
-    df_neighborhood_school = GeoDataFrame(df_neighborhood_school)
+    avg_college_zip = GeoDataFrame(avg_college_zip)
     
-    return df_neighborhood_school
-    
-neighborhood_school = geo_plot(r'/Users/YIHAOLI/Desktop/Github/finalproject/Boundaries - ZIP Codes')    
+    return avg_college_zip
 
-# Export the final dataframe
-neighborhood_school.to_csv(r'/Users/YIHAOLI/Desktop/Github/finalproject/Final_Version_dataframe.csv')
+neighborhood_school = geo_plot(r'/Users/YIHAOLI/Desktop/Github/finalproject/Boundaries - ZIP Codes')
 
 
 # Plot the choropleth map on college readiness index 
@@ -219,14 +228,14 @@ def geo_plot(df):
     cax = divider.append_axes('right', 
                               size='5%', 
                               pad=0.1)
-    
+
     ax = df[df.Zip != 60637].plot(ax=ax, 
-                                  column='college_readiness_index', 
+                                  column='avg_college_readiness_index', 
                                   legend=True, cax=cax)
 
     ax.axis('off')
     ax.set_title('How Well Chicago Public High Schools Prepare their Students for College by Neighborhood');
-    
+
     return fig
 
 fig = geo_plot(neighborhood_school)
