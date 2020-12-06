@@ -7,6 +7,8 @@ import statsmodels.api as sm
 
 df_original=pd.read_csv(r'/Users/tonyjia/Documents/GitHub/finalproject/finalproject/Final_Version_Dataframe.csv')
 
+#df_original=pd.read_csv(r'/Users/YIHAOLI/Desktop/Github/finalproject/Final_Version_Dataframe.csv')
+
 def reg_model(race):
     race=race.lower()
     X=df_original['Pct_'+str(race)]
@@ -28,6 +30,30 @@ Readiness Index. This result implies a crucial problem that African American stu
 are currently facing (no enough academic resources to help them get ready for college education)
 '''
 
+
+
+
+# generate binary values using get_dummies
+dum_df = pd.get_dummies(df_original, columns=["School_Type"], prefix=["Type_"])
+
+def reg_model(race1,race2):
+    race1=race1.lower()
+    race2=race2.lower()
+    X=dum_df[['Pct_'+str(race1), 
+                   'Pct_'+str(race2),
+                   'Type__Career academy',
+                   'Type__Charter',
+                   'Type__Contract',
+                   'Type__Magnet',
+                   'Type__Military academy',
+                   'Type__Neighborhood',
+                   'Type__Selective enrollment',]]
+    Y=df_original['college_readiness_index']
+    X=sm.add_constant(X)
+    ols_model=sm.OLS(Y,X).fit()
+    print(ols_model.summary())
+    
+reg_model('black','white')
 
 
 
