@@ -129,8 +129,6 @@ race_geo_college_readiness = fuzzy_merge(race_geo,
                                          college_readiness, 
                                          "Long_Name", 
                                          'School Name')
-# Export the final dataframe
-race_geo_college_readiness.to_csv(r'/Users/YIHAOLI/Desktop/Github/finalproject/Final_Version_Dataframe.csv')
 
 ################################################################################################################
 
@@ -166,13 +164,6 @@ def race_vs_college(a,b,c,d,e):
 
     return fig
 
-#plot= race_vs_college(race_geo_college_readiness['Pct_black'],
-                #race_geo_college_readiness['Pct_hispanic'],
-                #race_geo_college_readiness['Pct_asian'],
-                #race_geo_college_readiness['Pct_white'],
-                #race_geo_college_readiness['College Readiness Index'])
-
-
 fig= race_vs_college(race_geo_college_readiness['Pct_black'],
                 race_geo_college_readiness['Pct_hispanic'],
                 race_geo_college_readiness['Pct_asian'],
@@ -181,47 +172,143 @@ fig= race_vs_college(race_geo_college_readiness['Pct_black'],
 
 fig.savefig("/Users/YIHAOLI/Desktop/Github/finalproject/race_vs_college.png")
 
+# The four subplots race_vs_college.png , which are intended to show the 
+# relationship between College Readiness Index and share of different races, 
+# present a vague correlation between a school's share of African American 
+# students and how well a school prepares its student to be ready for college. 
+# Further investigation is demanded. 
+
 # Spatial Data
 
 # Data Source: https://data.cityofchicago.org/Facilities-Geographic-Boundaries/Boundaries-ZIP-Codes/gdcf-axmw
 
-path1 = r'/Users/YIHAOLI/Desktop/Github/finalproject/Boundaries - ZIP Codes'
-
-chicago_neighborhood = os.path.join(path1, 
+def geo_plot(path1):
+    chicago_neighborhood = os.path.join(path1, 
                                     'geo_export_a467ef04-a7d9-4917-aaff-ef95b0c3061d.shp')
 
-df_chicago_neighborhood = geopandas.read_file(chicago_neighborhood)
+    df_chicago_neighborhood = geopandas.read_file(chicago_neighborhood)
 
-df_chicago_neighborhood["zip"] = df_chicago_neighborhood["zip"] .astype(int)
-df_chicago_neighborhood = df_chicago_neighborhood.rename(columns={'zip': 'Zip'})
+    df_chicago_neighborhood["zip"] = df_chicago_neighborhood["zip"] .astype(int)
+    df_chicago_neighborhood = df_chicago_neighborhood.rename(columns={'zip': 'Zip'})
 
-neighborhood_school = pd.merge(race_geo_college_readiness,
-                 df_chicago_neighborhood,
-                 on='Zip', how='inner')
+    df_neighborhood_school = pd.merge(race_geo_college_readiness,
+                                   df_chicago_neighborhood,
+                                   on='Zip', how='inner')
 
-neighborhood_school = neighborhood_school.rename(columns={'College Readiness Index': 
-                                                          'college_readiness_index'})
+    df_neighborhood_school = df_neighborhood_school.rename(columns={'College Readiness Index': 
+                                                              'college_readiness_index'})
 
+    df_neighborhood_school = GeoDataFrame(df_neighborhood_school)
+    
+    return df_neighborhood_school
+    
+neighborhood_school = geo_plot(r'/Users/YIHAOLI/Desktop/Github/finalproject/Boundaries - ZIP Codes')    
 
-neighborhood_school = GeoDataFrame(neighborhood_school)
+# Export the final dataframe
+neighborhood_school.to_csv(r'/Users/YIHAOLI/Desktop/Github/finalproject/Final_Version_dataframe.csv')
 
 
 # Plot the choropleth map on college readiness index 
 
-fig, ax = plt.subplots(figsize=(12,12))
-
 from mpl_toolkits.axes_grid1 import make_axes_locatable
-divider = make_axes_locatable(ax)
-cax = divider.append_axes('right', size='5%', pad=0.1)
+
+def geo_plot(df):
+    fig, ax = plt.subplots(figsize=(12,12))
+
+    divider = make_axes_locatable(ax)
+    cax = divider.append_axes('right', 
+                              size='5%', 
+                              pad=0.1)
     
-ax = neighborhood_school[neighborhood_school.Zip != 60637].plot(ax=ax, column='college_readiness_index', legend=True, cax=cax)
+    ax = df[df.Zip != 60637].plot(ax=ax, 
+                                  column='college_readiness_index', 
+                                  legend=True, cax=cax)
 
-ax.axis('off')
-ax.set_title('How Well Chicago Public High Schools Prepare their Students for College by Neighborhood');
+    ax.axis('off')
+    ax.set_title('How Well Chicago Public High Schools Prepare their Students for College by Neighborhood');
+    
+    return fig
+
+fig = geo_plot(neighborhood_school)
+
+fig.savefig('/Users/YIHAOLI/Desktop/Github/finalproject/College_Readiness_Geo.png')
+
+# As the choropleth of College Readiness Index by Chicago neighborhood, 
+# College_Readiness_Geo.png, shows, the dark-colored neighborhoods, meaning 
+# neighborhoods having schools with low performance on preparing students for 
+# college, spread over Chicago. A school's location does not have a close 
+# association with how well it can prepare students for college. 
 
 
+#########################################################################################################
+
+# Applying a Model
+
+#########################################################################################################
+
+# Since we decide to find out whether a school's student racial proportion is 
+# associated with how well each school prepares students for college, indicated 
+# by the value College Readiness Index, the model of principal component
+# analysis is chosen. 
+
+X = race_geo_college_readiness[['Pct_white',
+ 'Pct_black',
+ 'Pct_native',
+ 'Pct_hispanic',
+ 'Pct_asian',
+ 'Pct_unknown',
+ 'College Readiness Index']]
+
+# Determine the number of components: 
+
+from sklearn.decomposition import PCA
+def PCT_graph(df):
+    
+    pca = PCA().fit(X)
+    plt.plot(np.cumsum(pca.explained_variance_ratio_))
+    plt.title('Percentage of Explained Variance')
+    plt.xlabel('number of components')
+    plt.ylabel('cumulative explained variance');
+    plt.savefig('/Users/YIHAOLI/Desktop/Github/finalproject/Explained_Variance.png')
+    
+    return plt
+
+plt = PCT_graph(X)
 
 
+#plt.show()
+
+
+# As the explained variance graph, Explained_Variance.png, indicates, two 
+# components are sufficient to explain all of the variance of a school's 
+# student race proportion and College Readiness Index.
+
+# Now apply the PCA model:
+def PCA_2(df):
+    
+    pca = PCA(n_components=2)
+    X_3D = pca.fit_transform(df)
+
+    loadings = pd.DataFrame(pca.components_.T, columns=['PC1', 'PC2'])
+
+    loadings['Variable']=list(X.columns)
+
+    loadings = loadings[["Variable", "PC1", "PC2"]]
+    
+    return loadings
+
+loading = PCA_2(X)
+
+print(loading)
+
+# As the dataframe "loading" points out, the first loading vector places
+# a positive direction on the percentage of black students, Pct_black, and the
+# percentage of students with unknown ethnicity, Pct_unknown. All other 
+# variables, including College Readiness Index, are placed in a negative 
+# direction by the first loading vector. An negative correlation between how 
+# well a school prepares its students for college is negatively associated with 
+# the number of African American and unknow-ethnicity students it has. Such 
+# findng is exhibited by the second loading vector as well. 
 
 
 
