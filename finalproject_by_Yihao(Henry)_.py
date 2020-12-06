@@ -262,14 +262,21 @@ X = race_geo_college_readiness[['Pct_white',
 # Determine the number of components: 
 
 from sklearn.decomposition import PCA
+def PCT_graph(df):
+    
+    pca = PCA().fit(X)
+    plt.plot(np.cumsum(pca.explained_variance_ratio_))
+    plt.title('Percentage of Explained Variance')
+    plt.xlabel('number of components')
+    plt.ylabel('cumulative explained variance');
+    plt.savefig('/Users/YIHAOLI/Desktop/Github/finalproject/Explained_Variance.png')
+    
+    return plt
 
-pca = PCA().fit(X)
-plt.plot(np.cumsum(pca.explained_variance_ratio_))
-plt.savefig('/Users/YIHAOLI/Desktop/Github/finalproject/Explained_Variance.png')
-plt.xlabel('number of components')
-plt.ylabel('cumulative explained variance');
+plt = PCT_graph(X)
 
-plt.show()
+
+#plt.show()
 
 
 # As the explained variance graph, Explained_Variance.png, indicates, two 
@@ -291,9 +298,10 @@ def PCA_2(df):
     return loadings
 
 loading = PCA_2(X)
+
 print(loading)
 
-# As the dataframe "loading" points out, the first loading vector places places
+# As the dataframe "loading" points out, the first loading vector places
 # a positive direction on the percentage of black students, Pct_black, and the
 # percentage of students with unknown ethnicity, Pct_unknown. All other 
 # variables, including College Readiness Index, are placed in a negative 
