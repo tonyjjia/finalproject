@@ -55,7 +55,19 @@ def reg_model(race1,race2):
     
 reg_model('black','white')
 
-
+'''
+According the principle component analysis we have conducted, only including
+the percentage of white and African American students is sufficient to find the
+relationship between other student ethinicies, such as Asian and Hispanic, and
+a school's performance on preparing its students being ready for college.
+After we put control on school types in the regression, observations generated
+from the regression without control on school types still hold. A school's higher
+percentage of African American students is associated with an decrease in 
+College Readiness Index, and a higher percentage of White students is associaed
+with an increase of College Readiness Index. For school types, being a magnet
+school, a school located in neighborhoods, or a contract school also associate
+with a decrease in College Readiness Index.
+'''
 
 
 
