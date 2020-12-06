@@ -3,6 +3,8 @@
 """
 pip install geopandas
 
+os.chdir('/Users/tonyjia/Documents/GitHub/finalproject/finalproject')
+
 import pandas as pd
 import matplotlib.pyplot as plt
 import geopandas as gpd
@@ -39,7 +41,8 @@ path=r'/Users/tonyjia/Documents/GitHub/finalproject/finalproject'
 filename='school_map.html'
 filename=os.path.join(path,filename)
 draw_map.save(filename)
-
+#This code helps open the html file automatically in your browser
+webbrowser.open('file:///Users/tonyjia/Documents/GitHub/finalproject/finalproject/school_map.html')
 
 #Draw a Heatmap to depict schools distribution
 from folium.plugins import HeatMap
@@ -55,6 +58,8 @@ path=r'/Users/tonyjia/Documents/GitHub/finalproject/finalproject'
 filename_heat='heat_map.html'
 filename_heat=os.path.join(path,filename_heat)
 draw_heat_map.save(filename_heat)
+webbrowser.open('file:///Users/tonyjia/Documents/GitHub/finalproject/finalproject/heat_map.html')
+
 
 #Draw a distribution graph in accordance with the dominant ethnic group
 school_loc_short2=school_loc_short
@@ -105,6 +110,8 @@ path=r'/Users/tonyjia/Documents/GitHub/finalproject/finalproject'
 filename_demo='num_map.html'
 filename_demo=os.path.join(path,filename_demo)
 num_map.save(filename_demo)
+webbrowser.open('file:///Users/tonyjia/Documents/GitHub/finalproject/finalproject/num_map.html')
+
 
 
 
