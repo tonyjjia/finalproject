@@ -20,6 +20,7 @@ import folium
 import json
 import requests
 import os
+import webbrowser
 
 def graph_school(data1):  
     city_map=folium.Map(location=[41.8781,-87.6298],zoom_start=12)
