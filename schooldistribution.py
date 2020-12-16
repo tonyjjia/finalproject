@@ -1,13 +1,14 @@
 """
 @author: tonyjia
 """
-pip install geopandas
+pip install geopandas #JL: this is not code
 
 os.chdir('/Users/tonyjia/Documents/GitHub/finalproject/finalproject')
 
 import pandas as pd
 import matplotlib.pyplot as plt
 import geopandas as gpd
+
 
 file_name1=r'/Users/tonyjia/Documents/GitHub/finalproject/finalproject/Boundaries - ZIP Codes/geo_export_a467ef04-a7d9-4917-aaff-ef95b0c3061d.shp'
 file_name2=r'/Users/tonyjia/Documents/GitHub/finalproject/finalproject/Chicago_Public_Schools_-_School_Profile_Information_SY1617.csv'
@@ -23,13 +24,13 @@ import os
 import webbrowser
 
 def graph_school(data1):  
-    city_map=folium.Map(location=[41.8781,-87.6298],zoom_start=12)
+    city_map=folium.Map(location=[41.8781,-87.6298],zoom_start=12) #JL: be clear on what these dimensions are if you're going to hard-code them in
 
     data_la=data1['School_Latitude']
     data_long=data1['School_Longitude']
 
     for la,long in zip(data_la,data_long):
-        schools.add_child(folium.CircleMarker([la,long], radius=3,color='red',fill=True,fill_color='yellow',fill_opacity=0.5))
+        schools.add_child(folium.CircleMarker([la,long], radius=3,color='red',fill=True,fill_color='yellow',fill_opacity=0.5)) #JL: variable "schools" is not defined
     city_map.add_child(schools)
 
     neighbor_bound=gpd.read_file('/Users/tonyjia/Documents/GitHub/finalproject/finalproject/Boundaries - ZIP Codes/geo_export_a467ef04-a7d9-4917-aaff-ef95b0c3061d.shp')
@@ -67,12 +68,12 @@ school_loc_short2=school_loc_short
 school_loc_short2['Demographic']=school_loc['Demographic_Description']
 split_res=[]
 def find_demo(demo):
-    for i in range(len(demo['Demographic'])): 
+    for i in range(len(demo['Demographic'])): #JL: you should not iterate manually over a dataframe column; use map
         demo_split=str(demo['Demographic'].iloc[i]).split()
         list_race=['White.','Black.','Hispanic.']
         matching=[s for s in demo_split if any(t in s for t in list_race)]
         split_res.append(matching)
-        i+=1 
+        i+=1 #JL: this does nothing
     return split_res
 split_res=find_demo(school_loc_short2)
 split_clean=[]
