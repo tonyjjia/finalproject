@@ -24,6 +24,14 @@ from bokeh.layouts import gridplot
 import geopandas
 from geopandas import GeoDataFrame
 
+"""
+General grading comments:
+- Only import libraries you use
+- You can use ' or " for strings, but be consistent unless you need to enclose one value inside the other, e.g. change to double-quotes in order to write s = "'"
+- Matching dataframes on fuzzy string names is fairly common and difficult, so good job tackling that issue
+- Matplotlib operations should be performed on axis and figure objects, not on plt. You did it right in some spots and not in others (PCT_graph).
+"""
+
 ############################################################################################################
 
 # Data Loading and Cleaning
@@ -36,7 +44,7 @@ from geopandas import GeoDataFrame
 
 # Data source: https://data.cityofchicago.org/Education/Chicago-Public-Schools-School-Profile-Information-/8i6r-et8s
 
-def prepare_data (path):
+def prepare_data (path): #JL: don't leave a space before the parentheses
     chicago_school = pd.read_csv(os.path.join(path, 
                                           "Chicago_Public_Schools_-_School_Profile_Information_SY1617.csv"))
     df = chicago_school.loc[chicago_school['Is_High_School'] == "Y"] 
@@ -93,12 +101,12 @@ college_readiness = pd.read_csv(os.path.join(path, "data_college_readiness.csv")
 
 # Cleaning up school names
 
-def fuzzy_merge(df_1, df_2, key1, key2, threshold=88, limit=10):
+def fuzzy_merge(df_1, df_2, key1, key2, threshold=88, limit=10): #JL: can you name them more descriptively than df_1 and df_2?
     
     s = df_2[key2].tolist()
 
     m = df_1[key1].apply(lambda x: process.extract(x, s, limit=limit))    
-    df_1['matches'] = m
+    df_1['matches'] = m #JL: there's no need for an intermediate variable; just assign diretly to the column
 
     m2 = df_1['matches'].apply(lambda x: ', '.join([i[0] for i in x if i[1] >= threshold]))
     df_1['matches'] = m2
@@ -109,7 +117,7 @@ def fuzzy_merge(df_1, df_2, key1, key2, threshold=88, limit=10):
     df_1['matches'] = df_1['matches'].replace(['Chicago Academy High School, Chicago Military Academy High School, Chicago Technology Academy High School'],
                                     'Chicago Academy High School')
     
-    df_1 = df_1.drop(76)
+    df_1 = df_1.drop(76) #JL: you should explain these in a comment for your future self, when you don't remember why they're dropped
     df_1 = df_1.drop(124)
     df_1 = df_1.drop(44)
     
